@@ -16,7 +16,12 @@ td.celula {
 }
 
 td.personagem {
-    background-color: rgb(211, 211, 211);
+    background-color: rgb(13, 9, 245);
+    cursor: pointer;
+}
+
+td.enemy{
+    background-color: crimson;
     cursor: pointer;
 }
 

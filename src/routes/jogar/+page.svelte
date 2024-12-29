@@ -7,12 +7,22 @@
         coluna : number
     }
 
+    class Status{
+        hp: number
+    }
+
+    class Enemy{
+        range: number[]
+    }
+
     // representa estado do jogo, contendo o mapa e a locação do personagem e do objetivo 
     class EstadoJogo {
         posicaoPersonagem : Coordenada
         posicaoObjetivo : Coordenada
+        posicaoEnemy : Coordenada
         mapa : number[][]
     }
+
 
     // cria o estado do jogo
     function inicializarJogo() : EstadoJogo {
@@ -20,31 +30,64 @@
         personagem.linha = 0
         personagem.coluna = 0
 
+        let PStatus : Status = new Status()
+        PStatus.hp = 3
+
         let objetivo : Coordenada = new Coordenada()
         objetivo.linha = 9
         objetivo.coluna = 9
 
-        let mapa : number[][] = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                         [0, 0, 0, 1, 1, 1, 1, 0, 0, 0],
-                         [0, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-                         [0, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-                         [0, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-                         [0, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-                         [0, 0, 0, 1, 1, 1, 1, 0, 0, 0],
-                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        let enemy: Coordenada = new Coordenada()
+        enemy.linha = 5
+        enemy.coluna = 10
+
+        let mapa : number[][] = [
+                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 , 0],
+                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 , 0],
+                         [0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 , 0],
+                         [0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 , 0],
+                         [0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 , 0],
+                         [0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 , 0],
+                         [0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 , 0],
+                         [0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 , 0],
+                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 , 0],
+                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 , 0]
                         ]
 
         let estado : EstadoJogo = new EstadoJogo()
         estado.posicaoPersonagem = personagem
         estado.posicaoObjetivo = objetivo
+        estado.posicaoEnemy = enemy
         estado.mapa = mapa
 
         return estado;
         
     }
 
+    function enemyChase(posicao: Coordenada, jogador: Coordenada): void {
+        let enemyLine = posicao.linha
+        let enemyColumn = posicao.coluna
+
+        let checkArray = [
+            [enemyLine + 1, enemyColumn],
+            [enemyLine -1, enemyColumn],
+            [enemyLine, enemyColumn +1],
+            [enemyLine, enemyColumn -1]
+        ];
+
+       for(let i = 0; i < checkArray.length; i++){
+            let [checkLine, checkColumn] = checkArray[i];
+            if(jogador.linha === checkLine || jogador.coluna === checkColumn){
+                //enemyLine && enemyColumn == jogador.linha && jogador.coluna;
+                console.log("chegooou boy chegooou");
+                return
+            }
+        
+       }
+        
+    }
+    
+    
     // detecta quando o personagem faz um movimento inválido 
     function houveColisao(posicao : Coordenada, jogo : EstadoJogo) : boolean {
         return (posicao.linha < 0 || posicao.coluna < 0)
@@ -52,6 +95,8 @@
             || jogo.mapa[posicao.linha][posicao.coluna] == 1
     }
 
+    
+    
     // trata o evento de perssionar as setas no teclado
  	function onKeyDown(evento) : void {
         let novaPosicao = new Coordenada()
@@ -81,6 +126,9 @@
         if(!houveColisao(novaPosicao, jogo)) {
             jogo.posicaoPersonagem = novaPosicao
         }
+
+        enemyChase(jogo.posicaoEnemy, novaPosicao)
+        
 	}
 
     // cria o objeto contendo o estado do jogo
@@ -98,6 +146,8 @@
                     <td class="celula personagem"></td>
                 {:else if i == jogo.posicaoObjetivo.linha &&  j == jogo.posicaoObjetivo.coluna}
                     <td class="celula objetivo"></td>
+                {:else if i == jogo.posicaoEnemy.linha && j == jogo.posicaoEnemy.coluna}
+                    <td class="celular enemy"></td>
                 {:else if jogo.mapa[i][j] == 0}
                     <td class="celula"></td>
                 {:else}
