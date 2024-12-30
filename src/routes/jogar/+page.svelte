@@ -1,7 +1,7 @@
-<!-- <script lang="ts">
+<script lang="ts">
 	import { goto } from '$app/navigation';
 
-	// tipo para guardar as coordenadas do personagem e do objetivo
+	// Classes para coordenadas, status e inimigo
 	class Coordenada {
 		linha: number;
 		coluna: number;
@@ -11,11 +11,6 @@
 		hp: number;
 	}
 
-	class Enemy {
-		range: number[];
-	}
-
-	// representa estado do jogo, contendo o mapa e a locação do personagem e do objetivo
 	class EstadoJogo {
 		posicaoPersonagem: Coordenada;
 		posicaoObjetivo: Coordenada;
@@ -23,14 +18,11 @@
 		mapa: number[][];
 	}
 
-	// cria o estado do jogo
+	// Inicializa o estado do jogo
 	function inicializarJogo(): EstadoJogo {
 		let personagem: Coordenada = new Coordenada();
 		personagem.linha = 0;
 		personagem.coluna = 0;
-
-		let PStatus: Status = new Status();
-		PStatus.hp = 3;
 
 		let objetivo: Coordenada = new Coordenada();
 		objetivo.linha = 9;
@@ -41,176 +33,19 @@
 		enemy.coluna = 10;
 
 		let mapa: number[][] = [
+			[0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+			[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 		];
 
 		let estado: EstadoJogo = new EstadoJogo();
-		estado.posicaoPersonagem = personagem;
-		estado.posicaoObjetivo = objetivo;
-		estado.posicaoEnemy = enemy;
-		estado.mapa = mapa;
-
-		return estado;
-	}
-
-	function enemyChase(posicao: Coordenada, jogador: Coordenada): void {
-		let enemyLine = posicao.linha;
-		let enemyColumn = posicao.coluna;
-
-		let checkArray = [
-			[enemyLine + 1, enemyColumn],
-			[enemyLine - 1, enemyColumn],
-			[enemyLine, enemyColumn + 1],
-			[enemyLine, enemyColumn - 1]
-		];
-
-		for (let i = 0; i < checkArray.length; i++) {
-			let [checkLine, checkColumn] = checkArray[i];
-			if (jogador.linha === checkLine || jogador.coluna === checkColumn) {
-				//enemyLine && enemyColumn == jogador.linha && jogador.coluna;
-				console.log('chegooou boy chegooou');
-				return;
-			}
-		}
-	}
-
-	// detecta quando o personagem faz um movimento inválido
-	function houveColisao(posicao: Coordenada, jogo: EstadoJogo): boolean {
-		return (
-			posicao.linha < 0 ||
-			posicao.coluna < 0 ||
-			posicao.linha >= jogo.mapa.length ||
-			posicao.coluna >= jogo.mapa[0].length ||
-			jogo.mapa[posicao.linha][posicao.coluna] == 1
-		);
-	}
-
-	// trata o evento de perssionar as setas no teclado
-	function onKeyDown(evento): void {
-		let novaPosicao = new Coordenada();
-		novaPosicao.linha = jogo.posicaoPersonagem.linha;
-		novaPosicao.coluna = jogo.posicaoPersonagem.coluna;
-
-		switch (evento.keyCode) {
-			case 38: // up
-				novaPosicao.linha--;
-				break;
-			case 40: // down
-				novaPosicao.linha++;
-				break;
-			case 37: // left
-				novaPosicao.coluna--;
-				break;
-			case 39: // right
-				novaPosicao.coluna++;
-				break;
-		}
-
-		if (
-			novaPosicao.linha == jogo.posicaoObjetivo.linha &&
-			novaPosicao.coluna == jogo.posicaoObjetivo.linha
-		) {
-			alert('Parabéns, você chegou ao objetivo');
-			goto('/');
-		}
-
-		if (!houveColisao(novaPosicao, jogo)) {
-			jogo.posicaoPersonagem = novaPosicao;
-		}
-
-		enemyChase(jogo.posicaoEnemy, novaPosicao);
-	}
-
-	// cria o objeto contendo o estado do jogo
-	let jogo: EstadoJogo = inicializarJogo();
-</script>
-
-<h1>Movimente o personagem (quadrado cinza) até o objetivo (quadrado roxo)</h1>
-
-<table>
-	{#each jogo.mapa as linha, i}
-		<tr>
-			{#each linha as celula, j}
-				{#if i == jogo.posicaoPersonagem.linha && j == jogo.posicaoPersonagem.coluna}
-					<td class="celula personagem"></td>
-				{:else if i == jogo.posicaoObjetivo.linha && j == jogo.posicaoObjetivo.coluna}
-					<td class="celula objetivo"></td>
-				{:else if i == jogo.posicaoEnemy.linha && j == jogo.posicaoEnemy.coluna}
-					<td class="celular enemy"></td>
-				{:else if jogo.mapa[i][j] == 0}
-					<td class="celula"></td>
-				{:else}
-					<td class="celula bloco"></td>
-				{/if}
-			{/each}
-		</tr>
-	{/each}
-</table>
-
-<br />
-
-<a class="menu" href="/">Voltar ao Menu</a>
-
-<svelte:window on:keydown|preventDefault={onKeyDown} /> -->
-
-<script lang="ts">
-	import { goto } from '$app/navigation';
-
-	// Tipo para guardar as coordenadas do personagem e do objetivo
-	class Coordenada {
-		linha: number;
-		coluna: number;
-	}
-
-	class Status {
-		hp: number;
-	}
-
-	// Representa estado do jogo, contendo o mapa e a locação do personagem e do objetivo
-	class EstadoJogo {
-		posicaoPersonagem: Coordenada;
-		posicaoObjetivo: Coordenada;
-		posicaoEnemy: Coordenada;
-		mapa: number[][];
-	}
-
-	// Cria o estado do jogo
-	function inicializarJogo(): EstadoJogo {
-		let personagem = new Coordenada();
-		personagem.linha = 0;
-		personagem.coluna = 0;
-
-		let objetivo = new Coordenada();
-		objetivo.linha = 9;
-		objetivo.coluna = 9;
-
-		let enemy = new Coordenada();
-		enemy.linha = 5;
-		enemy.coluna = 10;
-
-		let mapa: number[][] = [
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-		];
-
-		let estado = new EstadoJogo();
 		estado.posicaoPersonagem = personagem;
 		estado.posicaoObjetivo = objetivo;
 		estado.posicaoEnemy = enemy;
@@ -229,25 +64,26 @@
 
 		// Movimenta na direção da menor distância
 		if (Math.abs(deltaLinha) > Math.abs(deltaColuna)) {
-			novaLinha += Math.sign(deltaLinha); // Move para cima ou para baixo
+			novaLinha += Math.sign(deltaLinha);
 		} else {
-			novaColuna += Math.sign(deltaColuna); // Move para esquerda ou direita
+			novaColuna += Math.sign(deltaColuna);
 		}
 
-		// Verifica se a nova posição é válida
+		// Verifica se a nova posição é válida e não é a posição do jogador
 		if (
 			novaLinha >= 0 &&
 			novaColuna >= 0 &&
 			novaLinha < mapa.length &&
 			novaColuna < mapa[0].length &&
-			mapa[novaLinha][novaColuna] === 0 // Não pode ser um obstáculo
+			mapa[novaLinha][novaColuna] === 0 &&
+			!(novaLinha === jogador.linha && novaColuna === jogador.coluna)
 		) {
 			posicao.linha = novaLinha;
 			posicao.coluna = novaColuna;
 		}
 	}
 
-	// Detecta quando o personagem faz um movimento inválido
+	// Detecta colisão
 	function houveColisao(posicao: Coordenada, jogo: EstadoJogo): boolean {
 		return (
 			posicao.linha < 0 ||
@@ -258,27 +94,28 @@
 		);
 	}
 
-	// Trata o evento de pressionar as setas no teclado
+	// Controla os movimentos do jogador
 	function onKeyDown(evento): void {
 		let novaPosicao = new Coordenada();
 		novaPosicao.linha = jogo.posicaoPersonagem.linha;
 		novaPosicao.coluna = jogo.posicaoPersonagem.coluna;
 
 		switch (evento.keyCode) {
-			case 38: // up
+			case 38: 
 				novaPosicao.linha--;
 				break;
-			case 40: // down
+			case 40: 
 				novaPosicao.linha++;
 				break;
-			case 37: // left
+			case 37: 
 				novaPosicao.coluna--;
 				break;
-			case 39: // right
+			case 39: 
 				novaPosicao.coluna++;
 				break;
 		}
 
+		// Detecta vitória
 		if (
 			novaPosicao.linha == jogo.posicaoObjetivo.linha &&
 			novaPosicao.coluna == jogo.posicaoObjetivo.coluna
@@ -287,22 +124,25 @@
 			goto('/');
 		}
 
+		// Detecta se o jogador colidiu com o inimigo
 		if (
-			jogo.posicaoEnemy.linha === novaPosicao.linha &&
-			jogo.posicaoEnemy.coluna === novaPosicao.coluna
+			novaPosicao.linha === jogo.posicaoEnemy.linha &&
+			novaPosicao.coluna === jogo.posicaoEnemy.coluna
 		) {
 			alert('Você foi pego pelo inimigo!');
 			goto('/');
+			return;
 		}
 
+		// Movimenta o jogador
 		if (!houveColisao(novaPosicao, jogo)) {
 			jogo.posicaoPersonagem = novaPosicao;
 		}
 
+		// Movimenta o inimigo
 		enemyChase(jogo.posicaoEnemy, novaPosicao, jogo.mapa);
 	}
 
-	// Cria o objeto contendo o estado do jogo
 	let jogo: EstadoJogo = inicializarJogo();
 </script>
 
@@ -312,13 +152,13 @@
 	{#each jogo.mapa as linha, i}
 		<tr>
 			{#each linha as celula, j}
-				{#if i == jogo.posicaoPersonagem.linha && j == jogo.posicaoPersonagem.coluna}
+				{#if i === jogo.posicaoPersonagem.linha && j === jogo.posicaoPersonagem.coluna}
 					<td class="celula personagem"></td>
-				{:else if i == jogo.posicaoObjetivo.linha && j == jogo.posicaoObjetivo.coluna}
+				{:else if i === jogo.posicaoObjetivo.linha && j === jogo.posicaoObjetivo.coluna}
 					<td class="celula objetivo"></td>
-				{:else if i == jogo.posicaoEnemy.linha && j == jogo.posicaoEnemy.coluna}
+				{:else if i === jogo.posicaoEnemy.linha && j === jogo.posicaoEnemy.coluna}
 					<td class="celula enemy"></td>
-				{:else if jogo.mapa[i][j] == 0}
+				{:else if jogo.mapa[i][j] === 0}
 					<td class="celula"></td>
 				{:else}
 					<td class="celula bloco"></td>
@@ -328,29 +168,6 @@
 	{/each}
 </table>
 
-<br />
-
 <a class="menu" href="/">Voltar ao Menu</a>
 
 <svelte:window on:keydown|preventDefault={onKeyDown} />
-
-<style>
-	.celula {
-		width: 40px;
-		height: 40px;
-		border: 1px solid #ddd;
-		background-color: #fff;
-	}
-	.celula.personagem {
-		background-color: gray;
-	}
-	.celula.objetivo {
-		background-color: purple;
-	}
-	.celula.enemy {
-		background-color: red;
-	}
-	.celula.bloco {
-		background-color: black;
-	}
-</style>
